@@ -3,22 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
-  <title>Document</title>
+  <title>Seguridad</title>
 </head>
 <body>
-  <h1>Hello World</h1>
+  <h1>Ingreso al sistema</h1>
   We are useing node <script>document.write(process.versions.node)</script>
   Chrome <script>document.write(process.versions.chrome)</script>,
   and Electron <script>document.write(process.versions.electron)</script>.
   <button id="openButton" type="button">Capture face</button>
-  <img src="" id="image">
-  <div id="camdemo" style="width: 1280px; height: 720px; text-align: center; margin: 0 auto;"></div>
+  <!-- <img src="" id="image"> -->
+  <div id="camdemo" style="width: 100px; height: 100px; visibility:hidden; text-align: center; margin: 0 auto;"></div>
   <br>
   <div style="text-align:center;">
       <input type="button" id="start" value="Start / Shut down camera"/>
   </div>
-  <input type="button" id="saveFile" value="Save photo in Desktop">
-  <canvas id="c" width="1280px" height="720px">
+  <canvas id="c" width="100px" height="100px">
   </canvas>
   <script>
     require('./renderer.js');
