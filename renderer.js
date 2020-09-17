@@ -44,24 +44,6 @@ authorized = authorized.map((user) => {
 
 const faceMatcher = new faceapi.FaceMatcher(authorized);
 
-let enabled = false;
-
-document.getElementById("start").addEventListener(
-  "click",
-  function () {
-    if (!enabled) {
-      enabled = true;
-      WebCamera.attach("#camdemo");
-      console.log("The camera has been started");
-    } else {
-      enabled = false;
-      WebCamera.reset();
-      console.log("The camera has been disabled");
-    }
-  },
-  false
-);
-
 function deny(error) {
   console.log(error);
 }
@@ -69,27 +51,34 @@ function grant(message) {
   console.log(message);
 }
 
-openButton.addEventListener("click", async (event) => {
-  const video = document.querySelector("#camdemo video");
-  const detections = await faceapi
-    .detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
-    .withFaceLandmarks()
-    .withFaceDescriptors();
+openButton.addEventListener("click", (event) => {
+  WebCamera.attach("#camdemo");
+  console.log("The camera has been started");
+  setTimeout(async () => {
+    const video = document.querySelector("#camdemo video");
+    const detections = await faceapi
+      .detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
+      .withFaceLandmarks()
+      .withFaceDescriptors();
 
-  if (!detections.length) {
-    deny("No se detectaron rostros");
-    return;
-  }
-  let recognizedUsers = detections.map((det) =>
-    faceMatcher.findBestMatch(det.descriptor)
-  );
-  let authorizedUserName = null;
-  recognizedUsers.forEach((recognizerUser) => {
-    if (recognizerUser.label != "unknown")
-      authorizedUserName = recognizerUser.label;
-  });
-  if (authorizedUserName) grant(`Acceso concedido para ${authorizedUserName}`);
-  else deny("Rostro no reconocido");
+    if (!detections.length) {
+      deny("No se detectaron rostros");
+      return;
+    }
+    let recognizedUsers = detections.map((det) =>
+      faceMatcher.findBestMatch(det.descriptor)
+    );
+    let authorizedUserName = null;
+    recognizedUsers.forEach((recognizerUser) => {
+      if (recognizerUser.label != "unknown")
+        authorizedUserName = recognizerUser.label;
+    });
+    if (authorizedUserName)
+      grant(`Acceso concedido para ${authorizedUserName}`);
+    else deny("Rostro no reconocido");
 
+    WebCamera.reset();
+    console.log("The camera has been disabled");
+  }, 1000);
   // ipc.send('select-file');
 });
