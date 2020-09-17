@@ -13,8 +13,6 @@ ipc.on("selected-file", (event, filePath) => {
 const openButton = document.getElementById("openButton");
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
-let enabled = false;
-
 var image = new Image();
 image.onload = function () {
   ctx.drawImage(image, 0, 0);
@@ -36,6 +34,18 @@ faceapi.env.monkeyPatch({
   await faceapi.nets.faceRecognitionNet.loadFromDisk("./public/models");
 })();
 
+let authorized = JSON.parse(fs.readFileSync("./authorized.json"));
+authorized = authorized.map((user) => {
+  return new faceapi.LabeledFaceDescriptors(
+    user.name,
+    user.descriptors.map((desc) => new Float32Array(desc))
+  );
+});
+
+const faceMatcher = new faceapi.FaceMatcher(authorized);
+
+let enabled = false;
+
 document.getElementById("start").addEventListener(
   "click",
   function () {
@@ -52,7 +62,14 @@ document.getElementById("start").addEventListener(
   false
 );
 
-openButton.addEventListener("click", async function (event) {
+function deny(error) {
+  console.log(error);
+}
+function grant(message) {
+  console.log(message);
+}
+
+openButton.addEventListener("click", async (event) => {
   const video = document.querySelector("#camdemo video");
   const detections = await faceapi
     .detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
@@ -60,9 +77,19 @@ openButton.addEventListener("click", async function (event) {
     .withFaceDescriptors();
 
   if (!detections.length) {
-    console.log("No faces were detected");
+    deny("No se detectaron rostros");
+    return;
   }
+  let recognizedUsers = detections.map((det) =>
+    faceMatcher.findBestMatch(det.descriptor)
+  );
+  let authorizedUserName = null;
+  recognizedUsers.forEach((recognizerUser) => {
+    if (recognizerUser.label != "unknown")
+      authorizedUserName = recognizerUser.label;
+  });
+  if (authorizedUserName) grant(`Acceso concedido para ${authorizedUserName}`);
+  else deny("Rostro no reconocido");
 
-  console.log(detections);
   // ipc.send('select-file');
 });
