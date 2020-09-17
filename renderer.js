@@ -1,21 +1,38 @@
 const remote = require("electron").remote;
-const ipc = require("electron").ipcRenderer,
-  openButton = document.getElementById("openButton"),
-  canvas = document.getElementById("c");
-ctx = canvas.getContext("2d");
-
 const fs = require("fs");
-
+let WebCamera = require("webcamjs");
 const faceapi = require("face-api.js");
+
+const ipc = require("electron").ipcRenderer;
 
 ipc.on("selected-file", (event, filePath) => {
   console.log(event, filePath);
   image.setAttribute("src", "file://" + filePath);
 });
 
+const openButton = document.getElementById("openButton");
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
 let enabled = false;
 
-let WebCamera = require("webcamjs");
+var image = new Image();
+image.onload = function () {
+  ctx.drawImage(image, 0, 0);
+};
+
+faceapi.env.monkeyPatch({
+  Canvas: HTMLCanvasElement,
+  Image: HTMLImageElement,
+  ImageData: ImageData,
+  Video: HTMLVideoElement,
+  createCanvasElement: () => document.createElement("canvas"),
+  createImageElement: () => document.createElement("img"),
+});
+
+(async function () {
+  console.log(process.resourcesPath);
+  await faceapi.nets.ssdMobilenetv1.loadFromDisk("./public/models");
+})();
 
 document.getElementById("start").addEventListener(
   "click",
@@ -33,31 +50,16 @@ document.getElementById("start").addEventListener(
   false
 );
 
-var image = new Image();
-image.onload = function () {
-  ctx.drawImage(image, 0, 0);
-};
-
-console.log(faceapi);
-
-faceapi.env.monkeyPatch({
-  Canvas: HTMLCanvasElement,
-  Image: HTMLImageElement,
-  ImageData: ImageData,
-  Video: HTMLVideoElement,
-  createCanvasElement: () => document.createElement("canvas"),
-  createImageElement: () => document.createElement("img"),
-});
-
-(async function () {
-  console.log(process.resourcesPath);
-  await faceapi.nets.ssdMobilenetv1.loadFromUri("./public/models");
-})();
-
 openButton.addEventListener("click", async function (event) {
   const video = document.querySelector("#camdemo video");
-  console.log(video);
-  const detections = await faceapi.detectAllFaces(video);
+  const detections = await faceapi
+    .detectAllFaces(video)
+    // .withFaceLandmarks()
+    // .withFaceDescriptors();
+
+  if (!detections.length) {
+    console.log("No faces were detected");
+  };
   console.log(detections);
   // ipc.send('select-file');
 });
