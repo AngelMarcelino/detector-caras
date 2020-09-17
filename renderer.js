@@ -32,6 +32,8 @@ faceapi.env.monkeyPatch({
 (async function () {
   console.log(process.resourcesPath);
   await faceapi.nets.ssdMobilenetv1.loadFromDisk("./public/models");
+  await faceapi.nets.faceLandmark68Net.loadFromDisk("./public/models");
+  await faceapi.nets.faceRecognitionNet.loadFromDisk("./public/models");
 })();
 
 document.getElementById("start").addEventListener(
@@ -53,13 +55,14 @@ document.getElementById("start").addEventListener(
 openButton.addEventListener("click", async function (event) {
   const video = document.querySelector("#camdemo video");
   const detections = await faceapi
-    .detectAllFaces(video)
-    // .withFaceLandmarks()
-    // .withFaceDescriptors();
+    .detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
+    .withFaceLandmarks()
+    .withFaceDescriptors();
 
   if (!detections.length) {
     console.log("No faces were detected");
-  };
+  }
+
   console.log(detections);
   // ipc.send('select-file');
 });
