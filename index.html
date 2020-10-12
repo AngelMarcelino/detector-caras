@@ -1,23 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+  <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css" type="text/css">
   <title>Seguridad</title>
-</head>
-<body>
-  <h1>Ingreso al sistema</h1>
-  <br>
-  <button id="openButton" type="button">Ingresar</button>
-  <!-- <img src="" id="image"> -->
-  <div id="camdemo" style="width: 100px; height: 100px; visibility:hidden; text-align: center; margin: 0 auto;"></div>
-  <br>
-  <div id="result"></div>
 
-  <canvas id="c" width="100px" height="100px">
-  </canvas>
-  <script>
-    require('./renderer.js');
-  </script>
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+  <style>
+    html * {
+      font-family: Roboto !important;
+    }
+  </style>
+</head>
+
+<body class="text-center">
+  <div class="mt-5">
+    <h2>Ingreso al sistema</h2>
+    <br>
+    <button id="openButton" class="btn btn-primary">Ingresar</button>
+    <div id="camdemo" style="width: 100px; height: 100px; visibility:hidden; text-align: center; margin: 0 auto;"></div>
+    <br>
+    <div id="result"></div>
+
+    <canvas id="c" width="100px" height="100px">
+    </canvas>
+    <script>
+      require('./renderer.js');
+    </script>
+    <div>
 </body>
+
 </html>

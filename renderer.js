@@ -45,11 +45,15 @@ authorized = authorized.map((user) => {
 const faceMatcher = new faceapi.FaceMatcher(authorized);
 
 function deny(error) {
-  document.getElementById('result').innerText = error
+  let element = document.getElementById("result");
+  element.innerText = error;
+  element.className = "alert alert-danger";
   console.log(error);
 }
 function grant(message) {
-  document.getElementById('result').innerText = message
+  let element = document.getElementById("result");
+  element.innerText = message;
+  element.className = "alert alert-success";
   console.log(message);
 }
 
